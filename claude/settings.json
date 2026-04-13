@@ -42,6 +42,7 @@
       "Read(~/Library/Application Support/**/solflare*/**)"
     ]
   },
+  "model": "opus",
   "enableAllProjectMcpServers": false,
   "hooks": {
     "PreToolUse": [
@@ -60,6 +61,16 @@
     "type": "command",
     "command": "~/.claude/statusline.sh"
   },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    }
+  },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "medium"
+  "enabledPlugins": {
+    "caveman@caveman": true
+  }
 }

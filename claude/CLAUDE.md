@@ -206,3 +206,5 @@ Pin actions to SHA hashes with version comments: `actions/checkout@<full-sha>  #
 Describe what the code does now — not discarded approaches, prior iterations, or alternatives. Only describe what's in the diff.
 
 Use plain, factual language. A bug fix is a bug fix, not a "critical stability improvement." Avoid: critical, crucial, essential, significant, comprehensive, robust, elegant.
+
+@RTK.md
