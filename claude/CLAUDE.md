@@ -13,7 +13,8 @@ Global instructions for all projects. Project-specific CLAUDE.md files override 
 - **Clarity over cleverness** - Prefer explicit, readable code over dense one-liners
 - **Justify new dependencies** - Each dependency is attack surface and maintenance burden
 - **No phantom features** - Don't document or validate features that aren't implemented
-- **Replace, don't deprecate** - When a new implementation replaces an old one, remove the old one entirely. No backward-compatible shims, dual config formats, or migration paths. Proactively flag dead code — it adds maintenance burden and misleads both developers and LLMs.
+- **Replace, don't deprecate** - When a new implementation replaces an old one, remove the old one entirely. No backward-compatible shims, dual config formats, or migration paths. Dead code *within your change scope* (imports/variables/helpers your edits orphaned) should be removed. Dead code *orthogonal to your task* — mention it, don't delete it. Cleanup is a separate scope.
+- **Simplicity test** - "Would a senior engineer say this is overcomplicated?" If yes, simplify. If you wrote 200 lines and it could be 50, rewrite it.
 - **Verify at every level** - Set up automated guardrails (linters, type checkers, pre-commit hooks, tests) as the first step, not an afterthought. Prefer structure-aware tools (ast-grep, LSPs, compilers) over text pattern matching. Review your own output critically. Every layer catches what the others miss.
 - **Bias toward action** - Decide and move for anything easily reversed; state your assumption so the reasoning is visible. Ask before committing to interfaces, data models, architecture, or destructive/write operations on external services.
 - **Finish the job** - Don't stop at the minimum that technically satisfies the request. Handle the edge cases you can see. Clean up what you touched. If something is broken adjacent to your change, flag it. But don't invent new scope — there's a difference between thoroughness and gold-plating.
@@ -36,6 +37,14 @@ Fix every warning from every tool — linters, type checkers, compilers, tests. 
 ### Comments
 
 Code should be self-documenting. No commented-out code—delete it. If you need a comment to explain WHAT the code does, refactor the code instead.
+
+### Surgical changes
+
+Touch only what the task requires. When editing existing code:
+
+- Don't "improve" adjacent code, comments, or formatting. Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently. If style is genuinely wrong, raise it as a separate change, don't bundle.
+- Every changed line should trace directly to the user's request. If you can't justify a line by pointing at the request, drop it.
 
 ### Error handling
 
@@ -186,6 +195,26 @@ All scripts must start with `set -euo pipefail`. Lint: `shellcheck script.sh && 
 Pin actions to SHA hashes with version comments: `actions/checkout@<full-sha>  # vX.Y.Z` (use `persist-credentials: false`). Scan workflows with `zizmor` before committing. Configure Dependabot with 7-day cooldowns and grouped updates. Use `uv` ecosystem (not `pip`) for Python projects so Dependabot updates `uv.lock`.
 
 ## Workflow
+
+### Goal-driven execution
+
+Transform imperative tasks into verifiable goals before implementing:
+
+| Instead of | Reframe as |
+|------------|------------|
+| "Add validation" | "Write tests for invalid inputs, then make them pass" |
+| "Fix the bug" | "Write a test that reproduces it, then make it pass" |
+| "Refactor X" | "Ensure tests pass before and after" |
+
+For multi-step tasks, state the plan up front with an explicit verification step per item:
+
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") force constant clarification round-trips.
 
 **Before committing:**
 1. Re-read your changes for unnecessary complexity, redundant code, and unclear naming
